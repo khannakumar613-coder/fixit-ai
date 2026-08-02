@@ -36,21 +36,25 @@ jobs:
         path: |
           ~/.buildozer
           .buildozer
-        key: ${{ runner.os }}-buildozer-v6-${{ hashFiles('buildozer.spec') }}
+        key: ${{ runner.os }}-buildozer-v7-${{ hashFiles('buildozer.spec') }}
         restore-keys: |
-          ${{ runner.os }}-buildozer-v6-
+          ${{ runner.os }}-buildozer-v7-
 
     - name: Install Compatible Pip, Buildozer and Python-for-Android
       run: |
         python -m pip install --upgrade "pip==23.1.2" "setuptools==67.8.0" "wheel==0.38.4"
-        pip install --upgrade "buildozer==1.5.0" "cython==0.29.33" "python-for-android"
+        python -m pip install --upgrade "buildozer==1.5.0" "cython==0.29.33" "python-for-android"
 
     - name: Build APK with Buildozer
       env:
         ACLOCAL_PATH: /usr/share/aclocal:/usr/local/share/aclocal
+        PIP_VERSION: "23.1.2"
       run: |
-        # Buildozer के अंदर चलने वाले pip को भी पुराने वर्ज़न पर रहने के लिए बाध्य करना
-        pip install "pip<24"
+        python -m pip install --upgrade "pip==23.1.2"
+        mkdir -p ~/.buildozer/android/platform/build-python-for-android/venv/bin
+        if [ -f ~/.buildozer/android/platform/build-python-for-android/venv/bin/python ]; then
+          ~/.buildozer/android/platform/build-python-for-android/venv/bin/python -m pip install "pip==23.1.2"
+        fi
         yes | buildozer -v android debug
 
     - name: Upload APK Artifact
