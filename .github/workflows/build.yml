@@ -26,7 +26,7 @@ jobs:
           build-essential ca-certificates gcc g++ make bison flex gettext \
           libffi-dev libssl-dev libbz2-dev libsqlite3-dev zlib1g-dev \
           libreadline-dev libncurses5-dev libncursesw5-dev libgdbm-dev libdb-dev \
-          tk-dev uuid-dev liblzma-dev openjdk-17-jdk
+          tk-dev uuid-dev liblzma-dev libltdl-dev openjdk-17-jdk
         
         # Libtool macros को सिस्टम में फ़ोर्सफ़ुली इन्स्टॉल और कॉपी करना
         sudo libtoolize --install --copy --force 2>/dev/null || true
