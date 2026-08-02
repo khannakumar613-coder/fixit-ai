@@ -45,7 +45,8 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install --upgrade "cython==0.29.33" "buildozer==1.5.0"
         # pip internal spinner bug को खत्म करने के लिए लेटेस्ट p4a डायरेक्ट GitHub से इंस्टॉल करना
-        python -m pip install --upgrade "git+https://github.com/kivy/python-for-android.git@main"
+        # Install python-for-android from the repository's default branch instead of forcing @main
+        python -m pip install --upgrade "git+https://github.com/kivy/python-for-android.git"
 
     - name: Build APK with Buildozer
       env:
