@@ -13,10 +13,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
+    - name: Set up Python 3.11.0
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.11.0'
 
     - name: Install System Build Dependencies
       run: |
@@ -28,7 +28,6 @@ jobs:
           libreadline-dev libncurses5-dev libncursesw5-dev libgdbm-dev libdb-dev \
           tk-dev uuid-dev liblzma-dev libltdl-dev openjdk-17-jdk
         
-        # Libtool macros को सिस्टम में फ़ोर्सफ़ुली इन्स्टॉल और कॉपी करना
         sudo libtoolize --install --copy --force 2>/dev/null || true
 
     - name: Cache Buildozer & Android SDK
@@ -37,9 +36,9 @@ jobs:
         path: |
           ~/.buildozer
           .buildozer
-        key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+        key: ${{ runner.os }}-buildozer-v2-${{ hashFiles('buildozer.spec') }}
         restore-keys: |
-          ${{ runner.os }}-buildozer-
+          ${{ runner.os }}-buildozer-v2-
 
     - name: Install Buildozer and Dependencies
       run: |
