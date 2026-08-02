@@ -36,34 +36,21 @@ jobs:
         path: |
           ~/.buildozer
           .buildozer
-        key: ${{ runner.os }}-buildozer-v8-${{ hashFiles('buildozer.spec') }}
+        key: ${{ runner.os }}-buildozer-v9-${{ hashFiles('buildozer.spec') }}
         restore-keys: |
-          ${{ runner.os }}-buildozer-v8-
+          ${{ runner.os }}-buildozer-v9-
 
-    - name: Install Compatible Pip, Buildozer and Python-for-Android
+    - name: Install Buildozer, Cython & Fixed Python-for-Android
       run: |
-        python -m pip install --upgrade "pip==23.2.1" "setuptools==67.8.0" "wheel==0.38.4"
-        python -m pip install --upgrade "buildozer==1.5.0" "cython==0.29.33" "python-for-android"
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install --upgrade "cython==0.29.33" "buildozer==1.5.0"
+        # pip internal spinner bug को खत्म करने के लिए लेटेस्ट p4a डायरेक्ट GitHub से इंस्टॉल करना
+        python -m pip install --upgrade "git+https://github.com/kivy/python-for-android.git@main"
 
     - name: Build APK with Buildozer
       env:
         ACLOCAL_PATH: /usr/share/aclocal:/usr/local/share/aclocal
-        PIP_VERSION: "23.2.1"
       run: |
-        python -m pip install --upgrade "pip==23.2.1"
-        
-        # 1. सभी आंतरिक/कैश्ड build venvs में pip 23.2.1 को फ़ोर्स-अपग्रेड करना
-        for py in $(find ~/.buildozer -type f -path "*/venv/bin/python" 2>/dev/null || true); do
-          "$py" -m pip install --upgrade "pip==23.2.1" || true
-        done
-
-        # 2. Helper venv पाथ को सही करना
-        mkdir -p ~/.buildozer/android/platform/build-python-for-android/venv/bin
-        if [ -f ~/.buildozer/android/platform/build-python-for-android/venv/bin/python ]; then
-          ~/.buildozer/android/platform/build-python-for-android/venv/bin/python -m pip install --upgrade "pip==23.2.1" || true
-        fi
-
-        # 3. APK बिल्ड प्रोसेस शुरू करना
         yes | buildozer -v android debug
 
     - name: Upload APK Artifact
