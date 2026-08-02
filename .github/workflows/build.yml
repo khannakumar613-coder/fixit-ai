@@ -26,8 +26,8 @@ jobs:
           build-essential ca-certificates gcc g++ make bison flex gettext \
           libffi-dev libssl-dev libbz2-dev libsqlite3-dev zlib1g-dev \
           libreadline-dev libncurses5-dev libncursesw5-dev libgdbm-dev libdb-dev \
-          tk-dev uuid-dev liblzma-dev libltdl-dev openjdk-17-jdk
-        
+          tk-dev uuid-dev liblzma-dev libltdl-dev openjdk-17-jdk zip unzip \
+          libgl1-mesa-dev libpulse-dev
         sudo libtoolize --install --copy --force 2>/dev/null || true
 
     - name: Cache Buildozer & Android SDK
@@ -40,18 +40,41 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildozer-v9-
 
-    - name: Install Buildozer, Cython & Fixed Python-for-Android
+    - name: Install Buildozer, Cython & python-for-android (with pinned pip)
       run: |
-        python -m pip install --upgrade pip setuptools wheel
+        set -euo pipefail
+
+        # Pin pip to a version compatible with python-for-android's usage of pip internals.
+        # If you still see the same ImportError, try other values: 23.0.1 or 22.3.1.
+        python -m pip install --upgrade "pip==23.1.2" setuptools wheel
+
+        # Sanity debug output
+        echo "pip version:"
+        python -m pip --version
+        python - <<'PY'
+import sys
+try:
+    from pip._internal.cli.spinners import open_rich_spinner
+    print("pip._internal.cli.spinners.open_rich_spinner: OK")
+except Exception as e:
+    print("pip spinner check failed:", e)
+    # Note: we do not exit here because the import check that failed in the original job happened inside the p4a created venv.
+    # We still proceed to install buildozer and python-for-android; if p4a later fails in its created venv, try a different pip pin as suggested above.
+PY
+
+        # Install pinned Cython + Buildozer (keep same versions you used)
         python -m pip install --upgrade "cython==0.29.33" "buildozer==1.5.0"
-        # pip internal spinner bug को खत्म करने के लिए लेटेस्ट p4a डायरेक्ट GitHub से इंस्टॉल करना
-        # Install python-for-android from the repository's default branch instead of forcing @main
+
+        # Install python-for-android from GitHub:
+        #  - Option A: latest default branch (as you had). If you prefer a fixed commit, replace @<commit> below.
+        #  - Option B: pin to a known working commit: git+https://github.com/kivy/python-for-android.git@<commit-or-tag>
         python -m pip install --upgrade "git+https://github.com/kivy/python-for-android.git"
 
     - name: Build APK with Buildozer
       env:
         ACLOCAL_PATH: /usr/share/aclocal:/usr/local/share/aclocal
       run: |
+        # buildozer non-interactive, verbose
         yes | buildozer -v android debug
 
     - name: Upload APK Artifact
