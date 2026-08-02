@@ -21,9 +21,23 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev
+        sudo apt install -y \
+          git zip unzip openjdk-17-jdk \
+          autoconf automake libtool libtool-bin m4 pkg-config \
+          build-essential gcc g++ make bison flex gettext \
+          zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev liblzma-dev
 
-    - name: Fix Pip and Install Buildozer
+    - name: Cache Buildozer & Android SDK
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.buildozer
+          .buildozer
+        key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+        restore-keys: |
+          ${{ runner.os }}-buildozer-
+
+    - name: Install Buildozer and Dependencies
       run: |
         python -m pip install --upgrade "pip<24.0" "setuptools<69.0" wheel
         pip install --upgrade "buildozer==1.5.0" "cython==0.29.33"
