@@ -27,6 +27,9 @@ jobs:
           libffi-dev libssl-dev libbz2-dev libsqlite3-dev zlib1g-dev \
           libreadline-dev libncurses5-dev libncursesw5-dev libgdbm-dev libdb-dev \
           tk-dev uuid-dev liblzma-dev openjdk-17-jdk
+        
+        # Libtool macros को सिस्टम में फ़ोर्सफ़ुली इन्स्टॉल और कॉपी करना
+        sudo libtoolize --install --copy --force 2>/dev/null || true
 
     - name: Cache Buildozer & Android SDK
       uses: actions/cache@v4
@@ -45,7 +48,7 @@ jobs:
 
     - name: Build APK with Buildozer
       env:
-        ACLOCAL_PATH: /usr/share/aclocal
+        ACLOCAL_PATH: /usr/share/aclocal:/usr/local/share/aclocal
       run: |
         yes | buildozer -v android debug
 
